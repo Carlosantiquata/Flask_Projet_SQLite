@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, render_template, jsonify, request, redirect, url_for, session
+from flask import Flask, render_template_string, render_template, jsonify, request, redirect, url_for, session, Response
 from flask import render_template
 from flask import json
 from urllib.request import urlopen
@@ -49,6 +49,7 @@ def Readfichenom(nom):
         return Response(
             'Connexion requise. Identifiants : user / 12345', 401,
             {'WWW-Authenticate': 'Basic realm="Login Required"'}
+        )
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     
