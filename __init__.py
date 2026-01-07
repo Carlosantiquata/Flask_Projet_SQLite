@@ -12,27 +12,6 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 def est_authentifie():
     return session.get('authentifie')
 
-@app.route('/fiche_nom', methods=['GET', 'POST'])
-def fiche_nom():
-    auth = request.authorization 
-    if not auth or not (auth.username == 'user' and auth.password == '12345'):
-        return Response('Connexion requise', 401, {'WWW-Authenticate': 'Basic realm="Login Required"'})
-    if request.method == 'POST':
-        nom_recherche = request.form['nom']
-        conn = sqlite3.connect('database.db')
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM clients WHERE nom LIKE ?', (f'%{nom_recherche}%',))
-        data = cursor.fetchall()
-        conn.close()
-        return render_template('read_data.html', data=data)
-
-    return '''
-        <h1>Recherche Client</h1>
-        <form method="post">
-            Nom : <input type="text" name="nom">
-            <input type="submit" value="Chercher">
-        </form>
-    '''
 @app.route('/')
 def hello_world():
     return render_template('hello.html')
