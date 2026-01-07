@@ -8,6 +8,24 @@ import sqlite3
 app = Flask(__name__)                                                                                                                   
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 
+#debut
+@app.route('/fiche_nom')
+def fiche_nom():
+    # Récupère le nom depuis l'URL (?nom=DUPONT)
+    nom_saisi = request.args.get('nom', '')
+
+Connexion à la base
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+
+Recherche (on utilise UPPER pour éviter les problèmes de majuscules)
+    client = conn.execute("SELECT * FROM clients WHERE nom = ?", (nom_saisi,)).fetchone()
+    conn.close()
+
+On renvoie vers votre fichier
+    return render_template('recherche_client.html', client=client, nom_recherche=nom_saisi)
+#fin
+
 # Fonction pour créer une clé "authentifie" dans la session utilisateur
 def est_authentifie():
     return session.get('authentifie')
