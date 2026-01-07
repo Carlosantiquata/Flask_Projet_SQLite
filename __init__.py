@@ -80,37 +80,4 @@ def enregistrer_client():
 if __name__ == "__main__":
   app.run(debug=True) 
 
-from flask import Flask, request, Response
 
-app = Flask(__name__)
-
-# --- FONCTIONS DE SÉCURITÉ (OPTION A) ---
-def check_auth(username, password):
-    """Vérifie si le login et le mot de passe sont corrects"""
-    return username == 'user' and password == '12345'
-
-def authenticate():
-    """Envoie une réponse qui demande l'authentification au navigateur"""
-    return Response(
-        'Accès refusé. Veuillez vous connecter.', 401,
-        {'WWW-Authenticate': 'Basic realm="Login Required"'}
-    )
-
-# --- ROUTES ---
-
-@app.route('/')
-def hello():
-    return "Hello from Flask Server !"
-
-@app.route('/fiche_nom/')
-def fiche_nom():
-    auth = request.authorization
-    # Si l'utilisateur n'est pas encore connecté ou si les identifiants sont faux
-    if not auth or not check_auth(auth.username, auth.password):
-        return authenticate()
-    
-    # Si c'est bon, on affiche la page
-    return "<h1>Fiche Client</h1><p>Accès autorisé pour l'utilisateur : user</p>"
-
-if __name__ == "__main__":
-    app.run()
