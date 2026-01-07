@@ -41,18 +41,21 @@ def authentification():
     return render_template('formulaire_authentification.html', error=False)
 
 
-@app.route('/fiche_nom/<string:nom>')
-def ReadficheByNom(nom):
-conn = sqlite3.connect('database.db')
+
+@app.route('/fiche_client/<nom>')
+def Readfiche(nom):
+    conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
-
-    cursor.execute('SELECT * FROM clients WHERE nom = ?', (nom,))
+    
+    # On cherche par NOM au lieu de l'ID
+    # On utilise upper() pour transformer "dupont" en "DUPONT" comme dans la base
+    cursor.execute('SELECT * FROM clients WHERE nom = ?', (nom.upper(),))
+    
     data = cursor.fetchall()
-
     conn.close()
-
+    
+    # Rendre le template HTML et transmettre les données
     return render_template('read_data.html', data=data)
-
 @app.route('/fiche_client/<int:post_id>')
 def Readfiche(post_id):
     conn = sqlite3.connect('database.db')
