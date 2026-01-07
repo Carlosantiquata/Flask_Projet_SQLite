@@ -42,7 +42,7 @@ def authentification():
 
 
 
-@app.route('/fiche_client/<string:nom>')
+@app.route('/fiche_nom/<string:nom>')
 def Readfichenom(nom):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
