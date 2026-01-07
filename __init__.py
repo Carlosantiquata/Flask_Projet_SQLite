@@ -42,8 +42,8 @@ def authentification():
 
 
 
-@app.route('/fiche_client/<nom>')
-def Readfiche(nom):
+@app.route('/fiche_client/<string:nom>')
+def Readfichenom(nom):
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
     
@@ -53,9 +53,11 @@ def Readfiche(nom):
     
     data = cursor.fetchall()
     conn.close()
-    
+     
     # Rendre le template HTML et transmettre les données
-    return render_template('read_data.html', data=data)
+    return render_template('read_data.html', data=data) 
+
+
 @app.route('/fiche_client/<int:post_id>')
 def Readfiche(post_id):
     conn = sqlite3.connect('database.db')
