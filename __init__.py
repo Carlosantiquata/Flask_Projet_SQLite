@@ -76,6 +76,10 @@ def enregistrer_client():
     conn.commit()
     conn.close()
     return redirect('/consultation/')  # Rediriger vers la page d'accueil après l'enregistrement
+
+@app.route('/fiche_nom/')
+def fiche_nom():
+    return "<h1>Recherche de client</h1><p>Bienvenue sur l'interface de recherche.<p>"
                                                                                                                                        
 if __name__ == "__main__":
   app.run(debug=True)
