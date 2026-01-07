@@ -53,4 +53,4 @@ jobs:
           else
             echo "Échec du redémarrage avec le code de réponse : $response_code"
             exit 1  # Quitter avec un code d'erreur
-          fi
+          fi 
