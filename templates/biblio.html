@@ -1,62 +1,47 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container">
-    <h1>📚 Ma Bibliothèque</h1>
+<div style="padding: 20px;">
+    <h1>📚 Gestion de la Bibliothèque</h1>
 
-    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-        
-        <form action="{{ url_for('bibliotheque') }}" method="GET" style="display: flex; gap: 10px;">
-            <input type="text" name="search" placeholder="Titre ou Auteur..." value="{{ request.args.get('search', '') }}">
-            <button type="submit">Rechercher 🔍</button>
-            {% if request.args.get('search') %}
-                <a href="{{ url_for('bibliotheque') }}">Tout afficher</a>
-            {% endif %}
-        </form>
-
-        <a href="{{ url_for('add_book') }}" style="background-color: #28a745; color: white; padding: 10px; text-decoration: none; border-radius: 5px;">
-            + Ajouter un livre
-        </a>
+    <div style="margin-bottom: 20px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
+        <input type="text" placeholder="Rechercher un livre..." style="padding: 5px; width: 300px;">
+        <button style="padding: 5px;">Rechercher</button>
+        <a href="#" style="float: right; background-color: #28a745; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px;">+ Nouveau Livre</a>
     </div>
 
-    <table border="1" cellpadding="10" cellspacing="0" width="100%">
-        <thead>
-            <tr style="background-color: #f2f2f2;">
-                <th>ID</th>
-                <th>Titre</th>
-                <th>Auteur</th>
-                <th>Stock</th>
-                <th>Actions</th>
+    <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead style="background-color: #333; color: white;">
+            <tr>
+                <th style="padding: 10px;">ID</th>
+                <th style="padding: 10px;">Titre</th>
+                <th style="padding: 10px;">Auteur</th>
+                <th style="padding: 10px;">État du Stock</th>
+                <th style="padding: 10px;">Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for book in books %}
-            <tr>
-                <td>{{ book['id'] }}</td>
-                <td><strong>{{ book['titre'] }}</strong></td>
-                <td>{{ book['auteur'] }}</td>
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 10px;">{{ book.id }}</td>
+                <td style="padding: 10px; font-weight: bold;">{{ book.titre }}</td>
+                <td style="padding: 10px;">{{ book.auteur }}</td>
                 
-                <td style="color: {{ 'red' if book['stock'] == 0 else 'green' }}; font-weight: bold;">
-                    {{ book['stock'] }} en rayon
-                </td>
-
-                <td>
-                    {% if book['stock'] > 0 %}
-                        <form action="{{ url_for('emprunter', book_id=book['id']) }}" method="POST" style="display:inline;">
-                            <button type="submit">Emprunter 📖</button>
-                        </form>
+                <td style="padding: 10px;">
+                    {% if book.stock > 0 %}
+                        <span style="color: green; font-weight: bold;">✅ En stock ({{ book.stock }})</span>
                     {% else %}
-                        <span style="color: gray; font-style: italic;">Indisponible</span>
+                        <span style="color: red; font-weight: bold;">❌ Rupture</span>
                     {% endif %}
-
-                    <form action="{{ url_for('delete_book', book_id=book['id']) }}" method="POST" style="display:inline; margin-left: 10px;">
-                        <button type="submit" style="background-color: #dc3545; color: white; border: none; cursor: pointer;" onclick="return confirm('Êtes-vous sûr ?');">X</button>
-                    </form>
                 </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5" style="text-align: center;">Aucun livre trouvé dans la bibliothèque.</td>
+
+                <td style="padding: 10px;">
+                    {% if book.stock > 0 %}
+                        <button style="cursor: pointer;">Emprunter</button>
+                    {% else %}
+                        <button disabled style="color: gray; cursor: not-allowed;">Indisponible</button>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
