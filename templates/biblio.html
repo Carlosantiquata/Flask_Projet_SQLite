@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>📚 Ma Bibliothèque</h1>
+
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        
+        <form action="{{ url_for('bibliotheque') }}" method="GET" style="display: flex; gap: 10px;">
+            <input type="text" name="search" placeholder="Titre ou Auteur..." value="{{ request.args.get('search', '') }}">
+            <button type="submit">Rechercher 🔍</button>
+            {% if request.args.get('search') %}
+                <a href="{{ url_for('bibliotheque') }}">Tout afficher</a>
+            {% endif %}
+        </form>
+
+        <a href="{{ url_for('add_book') }}" style="background-color: #28a745; color: white; padding: 10px; text-decoration: none; border-radius: 5px;">
+            + Ajouter un livre
+        </a>
+    </div>
+
+    <table border="1" cellpadding="10" cellspacing="0" width="100%">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th>ID</th>
+                <th>Titre</th>
+                <th>Auteur</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book['id'] }}</td>
+                <td><strong>{{ book['titre'] }}</strong></td>
+                <td>{{ book['auteur'] }}</td>
+                
+                <td style="color: {{ 'red' if book['stock'] == 0 else 'green' }}; font-weight: bold;">
+                    {{ book['stock'] }} en rayon
+                </td>
+
+                <td>
+                    {% if book['stock'] > 0 %}
+                        <form action="{{ url_for('emprunter', book_id=book['id']) }}" method="POST" style="display:inline;">
+                            <button type="submit">Emprunter 📖</button>
+                        </form>
+                    {% else %}
+                        <span style="color: gray; font-style: italic;">Indisponible</span>
+                    {% endif %}
+
+                    <form action="{{ url_for('delete_book', book_id=book['id']) }}" method="POST" style="display:inline; margin-left: 10px;">
+                        <button type="submit" style="background-color: #dc3545; color: white; border: none; cursor: pointer;" onclick="return confirm('Êtes-vous sûr ?');">X</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center;">Aucun livre trouvé dans la bibliothèque.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
