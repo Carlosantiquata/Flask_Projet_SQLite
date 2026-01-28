@@ -15,7 +15,10 @@ def est_authentifie():
 
 @app.route('/')
 def hello_world():
-    return render_template('biblio.html')
+    conn = get_db_connection() # Assure-toi d'avoir cette fonction définie ou utilise sqlite3.connect...
+    books = conn.execute('SELECT * FROM livres').fetchall()
+    conn.close()
+    return render_template('biblio.html', books=books)
 
 @app.route('/lecture')
 def lecture():
