@@ -6,7 +6,6 @@ CREATE TABLE clients (
     prenom TEXT NOT NULL,
     adresse TEXT NOT NULL
 );
-/* Ajout pour la bibliothèque */
 DROP TABLE IF EXISTS livres;
 
 CREATE TABLE livres (
@@ -15,5 +14,4 @@ CREATE TABLE livres (
     auteur TEXT NOT NULL,
     stock INTEGER NOT NULL DEFAULT 1
 );
-
 
