@@ -22,11 +22,11 @@ def hello_world():
     try:
         books = conn.execute('SELECT * FROM livres').fetchall()
     except:
-        books = [] # Sécurité si la table n'existe pas encore
+        books = []
         
     conn.close()
     
-    # On envoie la variable 'books' au template (C'est ça qui manquait !)
+    # IMPORTANT : on envoie books à la page
     return render_template('biblio.html', books=books)
 
 @app.route('/lecture')
