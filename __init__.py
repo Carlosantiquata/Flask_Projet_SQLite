@@ -15,9 +15,18 @@ def est_authentifie():
 
 @app.route('/')
 def hello_world():
-    conn = get_db_connection() # Assure-toi d'avoir cette fonction définie ou utilise sqlite3.connect...
-    books = conn.execute('SELECT * FROM livres').fetchall()
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    
+    # On récupère les livres
+    try:
+        books = conn.execute('SELECT * FROM livres').fetchall()
+    except:
+        books = [] # Sécurité si la table n'existe pas encore
+        
     conn.close()
+    
+    # On envoie la variable 'books' au template (C'est ça qui manquait !)
     return render_template('biblio.html', books=books)
 
 @app.route('/lecture')
