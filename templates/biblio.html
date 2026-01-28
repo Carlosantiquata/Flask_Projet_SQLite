@@ -2,46 +2,35 @@
 
 {% block content %}
 <div style="padding: 20px;">
-    <h1>📚 Gestion de la Bibliothèque</h1>
+    <h1>📚 Ma Bibliothèque</h1>
 
-    <div style="margin-bottom: 20px; padding: 10px; background-color: #f8f9fa; border-radius: 5px;">
-        <input type="text" placeholder="Rechercher un livre..." style="padding: 5px; width: 300px;">
-        <button style="padding: 5px;">Rechercher</button>
-        <a href="#" style="float: right; background-color: #28a745; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px;">+ Nouveau Livre</a>
-    </div>
-
-    <table border="1" style="width: 100%; border-collapse: collapse; text-align: left;">
-        <thead style="background-color: #333; color: white;">
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+        <thead style="background-color: #f2f2f2;">
             <tr>
                 <th style="padding: 10px;">ID</th>
                 <th style="padding: 10px;">Titre</th>
                 <th style="padding: 10px;">Auteur</th>
-                <th style="padding: 10px;">État du Stock</th>
-                <th style="padding: 10px;">Actions</th>
+                <th style="padding: 10px;">Stock</th>
             </tr>
         </thead>
         <tbody>
             {% for book in books %}
-            <tr style="border-bottom: 1px solid #ddd;">
-                <td style="padding: 10px;">{{ book.id }}</td>
-                <td style="padding: 10px; font-weight: bold;">{{ book.titre }}</td>
-                <td style="padding: 10px;">{{ book.auteur }}</td>
+            <tr>
+                <td style="padding: 10px;">{{ book['id'] }}</td>
+                <td style="padding: 10px;"><strong>{{ book['titre'] }}</strong></td>
+                <td style="padding: 10px;">{{ book['auteur'] }}</td>
                 
-                <td style="padding: 10px;">
-                    {% if book.stock > 0 %}
-                        <span style="color: green; font-weight: bold;">✅ En stock ({{ book.stock }})</span>
+                <td style="padding: 10px; color: {{ 'red' if book['stock'] == 0 else 'green' }};">
+                    {% if book['stock'] > 0 %}
+                        ✅ {{ book['stock'] }} en rayon
                     {% else %}
-                        <span style="color: red; font-weight: bold;">❌ Rupture</span>
+                        ❌ Rupture
                     {% endif %}
                 </td>
-
-                <td style="padding: 10px;">
-                    {% if book.stock > 0 %}
-                        <button style="cursor: pointer;">Emprunter</button>
-                    {% else %}
-                        <button disabled style="color: gray; cursor: not-allowed;">Indisponible</button>
-                    {% endif %}
-                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4">Aucun livre trouvé (Vérifie que la variable 'books' est bien envoyée depuis app.py).</td>
             </tr>
             {% endfor %}
         </tbody>
