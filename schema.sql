@@ -16,7 +16,4 @@ CREATE TABLE livres (
     stock INTEGER NOT NULL DEFAULT 1
 );
 
-/* On ajoute quelques livres pour que la page ne soit pas vide */
-INSERT INTO livres (titre, auteur, stock) VALUES ('Harry Potter', 'J.K. Rowling', 3);
-INSERT INTO livres (titre, auteur, stock) VALUES ('Le Petit Prince', 'Saint-Exupéry', 5);
-INSERT INTO livres (titre, auteur, stock) VALUES ('Misérables', 'Victor Hugo', 0);
+
