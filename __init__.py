@@ -29,6 +29,29 @@ def hello_world():
     # IMPORTANT : on envoie books à la page
     return render_template('biblio.html', books=books)
 
+# --- Route pour emprunter un livre ---
+@app.route('/emprunter/<int:id_livre>', methods=['POST'])
+def emprunter(id_livre):
+    conn = sqlite3.connect('database.db')
+    cur = conn.cursor()
+    
+    # 1. On vérifie le stock actuel du livre
+    cur.execute('SELECT stock FROM livres WHERE id = ?', (id_livre,))
+    stock = cur.fetchone()['stock']
+    
+    # 2. Si le stock est plus grand que 0, on l'enlève
+    if stock > 0:
+        cur.execute('UPDATE livres SET stock = stock - 1 WHERE id = ?', (id_livre,))
+        conn.commit()
+        print(f"Livre {id_livre} emprunté. Stock restant : {stock - 1}")
+    else:
+        print(f"Impossible : Stock épuisé pour le livre {id_livre}")
+
+    conn.close()
+    
+    # 3. On recharge la page d'accueil pour voir le changement
+    return redirect(url_for('hello_world'))
+    
 @app.route('/lecture')
 def lecture():
     if not est_authentifie():
