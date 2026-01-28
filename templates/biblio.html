@@ -2,33 +2,129 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Ma Bibliothèque</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Bibliothèque Moderne</title>
+    
+    <style>
+        /* Reset de base et police moderne */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5; /* Fond gris clair */
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* Le conteneur principal (la "carte" blanche) */
+        .main-container {
+            max-width: 900px;
+            margin: 40px auto; /* Centrer horizontalement */
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px; /* Coins arrondis */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Ombre douce */
+        }
+
+        /* Le titre */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        /* Le tableau */
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 16px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        }
+
+        /* L'en-tête du tableau */
+        .styled-table thead tr {
+            background-color: #34495e; /* Bleu foncé */
+            color: #ffffff;
+            text-align: left;
+        }
+
+        /* Les cellules */
+        .styled-table th,
+        .styled-table td {
+            padding: 15px 20px; /* De l'espace dans les cellules */
+        }
+
+        /* Lignes du tableau */
+        .styled-table tbody tr {
+            border-bottom: 1px solid #dddddd;
+        }
+        /* Effet au survol de la souris */
+        .styled-table tbody tr:hover {
+            background-color: #f3f3f3;
+        }
+
+        /* Styles pour les Badges de stock (les "pilules" colorées) */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px; /* Forme arrondie */
+            font-weight: 600;
+            font-size: 13px;
+            display: inline-block;
+        }
+        .badge-success {
+            background-color: #2ecc71; /* Vert joli */
+            color: white;
+        }
+        .badge-danger {
+            background-color: #e74c3c; /* Rouge joli */
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <h1>📚 Ma Bibliothèque</h1>
-    <table border="1" cellpadding="10" style="border-collapse: collapse; width: 100%;">
-        <thead>
-            <tr style="background-color: #eee;">
-                <th>Titre</th>
-                <th>Auteur</th>
-                <th>Stock</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for book in books %}
-            <tr>
-                <td>{{ book['titre'] }}</td>
-                <td>{{ book['auteur'] }}</td>
-                <td style="color: {{ 'green' if book['stock'] > 0 else 'red' }}">
-                    {{ book['stock'] }}
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="3">Aucun livre trouvé. (Pense à lancer python create_db.py)</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+    <div class="main-container">
+        <h1>📚 Ma Bibliothèque</h1>
+
+        <table class="styled-table">
+            <thead>
+                <tr>
+                    <th>Titre du livre</th>
+                    <th>Auteur</th>
+                    <th style="text-align: center;">Disponibilité</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td style="font-weight: bold; color: #2c3e50;">
+                        {{ book['titre'] }}
+                    </td>
+                    <td>{{ book['auteur'] }}</td>
+                    
+                    <td style="text-align: center;">
+                        {% if book['stock'] > 0 %}
+                            <span class="badge badge-success">
+                                En stock : {{ book['stock'] }}
+                            </span>
+                        {% else %}
+                            <span class="badge badge-danger">
+                                Rupture de stock
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="3" style="text-align: center; padding: 30px; color: #777;">
+                        <em>Aucun livre trouvé dans la bibliothèque.</em>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
 </body>
 </html>
