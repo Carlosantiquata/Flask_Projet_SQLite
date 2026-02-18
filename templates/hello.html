@@ -1,3 +1,68 @@
 <!doctype html>
-<title>Flask Server</title>
-<h1> Hello from Flask Server !</h1>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue</title>
+    <style>
+        /* On reprend le thème Lavande pour la cohérence */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f0ff; /* Fond lavande pâle */
+            color: #4a4a4a;
+            height: 100vh; /* Prend toute la hauteur de l'écran */
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        h1 {
+            color: #673ab7; /* Violet foncé */
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 40px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        /* Le bouton d'action principal */
+        .btn-start {
+            background-color: #7e57c2;
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 50px; /* Bouton bien rond */
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(126, 87, 194, 0.4); /* Ombre violette */
+            transition: transform 0.2s, background-color 0.3s;
+        }
+
+        .btn-start:hover {
+            background-color: #5e35b1;
+            transform: translateY(-5px); /* Le bouton remonte un peu au survol */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Bienvenue !</h1>
+    <p>
+        Simplifiez votre organisation quotidienne.<br>
+        Gérez vos projets, suivez vos échéances et restez productif.
+    </p>
+
+    <a href="{{ url_for('taches') }}" class="btn-start">
+        🚀 Voir mes Tâches
+    </a>
+
+</body>
+</html>
