@@ -29,7 +29,7 @@
 
         <div class="card">
             <h2>📚 Bibliothèque</h2>
-            <p>Empruntez des livres et consultez les stocks.</p>
+            <p>Il y a actuellement <strong>{{ livres|length }}</strong> livres disponibles.</p>
             <a href="{{ url_for('bibliotheque') }}" class="btn">Voir les livres</a>
         </div>
     </div>
