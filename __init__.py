@@ -1,12 +1,17 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, render_template_string
 import sqlite3
+import os  # <--- NOUVEAU : Ajoute cette ligne !
 
 app = Flask(__name__)
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète indispensable pour les sessions
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
-# --- Fonction utilitaire pour la connexion DB ---
+# --- CORRECTION DU PROBLÈME DE BASE DE DONNÉES VIDE ---
 def get_db_connection():
-    conn = sqlite3.connect('database.db')
+    # On calcule le chemin ABSOLU du fichier (l'adresse exacte sur le disque)
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    db_path = os.path.join(basedir, 'database.db')
+    
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
