@@ -1,130 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Bibliothèque Moderne</title>
-    
+    <title>Bibliothèque - MyTasks</title>
     <style>
-        /* Reset de base et police moderne */
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f0f2f5; /* Fond gris clair */
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-
-        /* Le conteneur principal (la "carte" blanche) */
-        .main-container {
-            max-width: 900px;
-            margin: 40px auto; /* Centrer horizontalement */
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px; /* Coins arrondis */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Ombre douce */
-        }
-
-        /* Le titre */
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            font-weight: 300;
-        }
-
-        /* Le tableau */
-        .styled-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 25px 0;
-            font-size: 16px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-        }
-
-        /* L'en-tête du tableau */
-        .styled-table thead tr {
-            background-color: #34495e; /* Bleu foncé */
-            color: #ffffff;
-            text-align: left;
-        }
-
-        /* Les cellules */
-        .styled-table th,
-        .styled-table td {
-            padding: 15px 20px; /* De l'espace dans les cellules */
-        }
-
-        /* Lignes du tableau */
-        .styled-table tbody tr {
-            border-bottom: 1px solid #dddddd;
-        }
-        /* Effet au survol de la souris */
-        .styled-table tbody tr:hover {
-            background-color: #f3f3f3;
-        }
-
-        /* Styles pour les Badges de stock (les "pilules" colorées) */
-        .badge {
-            padding: 6px 12px;
-            border-radius: 20px; /* Forme arrondie */
-            font-weight: 600;
-            font-size: 13px;
-            display: inline-block;
-        }
-        .badge-success {
-            background-color: #2ecc71; /* Vert joli */
-            color: white;
-        }
-        .badge-danger {
-            background-color: #e74c3c; /* Rouge joli */
-            color: white;
-        }
+        /* On garde ton thème Lavande */
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f3f0ff; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        h1 { color: #673ab7; text-align: center; }
+        
+        .search-box { margin-bottom: 30px; display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; border: 2px solid #ede7f6; border-radius: 8px; }
+        
+        .book-card { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+        .book-info b { color: #5e35b1; font-size: 1.1em; }
+        .stock { font-size: 0.9em; color: #666; }
+        
+        .btn { padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; }
+        .btn-emprunt { background-color: #7e57c2; color: white; }
+        .btn-emprunt:disabled { background-color: #ccc; cursor: not-allowed; }
+        .btn-admin { background-color: #ffccbc; color: #d84315; font-size: 0.8em; }
     </style>
 </head>
 <body>
+    <div class="container">
+        <a href="/" style="text-decoration: none; color: #9575cd;">⬅ Retour</a>
+        <h1>📚 La Bibliothèque</h1>
 
-    <div class="main-container">
-        <h1>📚 Ma Bibliothèque</h1>
+        <form class="search-box" action="/api/livres" method="GET">
+            <input type="text" name="q" placeholder="Rechercher un titre, un auteur...">
+            <button type="submit" class="btn btn-emprunt">Rechercher</button>
+        </form>
 
-        <table class="styled-table">
-            <thead>
-                <tr>
-                    <th>Titre du livre</th>
-                    <th>Auteur</th>
-                    <th style="text-align: center;">Disponibilité</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for book in books %}
-                <tr>
-                    <td style="font-weight: bold; color: #2c3e50;">
-                        {{ book['titre'] }}
-                    </td>
-                    <td>{{ book['auteur'] }}</td>
-                    
-                    <td style="text-align: center;">
-                        {% if book['stock'] > 0 %}
-                            <span class="badge badge-success">
-                                En stock : {{ book['stock'] }}
-                            </span>
-                        {% else %}
-                            <span class="badge badge-danger">
-                                Rupture de stock
-                            </span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="3" style="text-align: center; padding: 30px; color: #777;">
-                        <em>Aucun livre trouvé dans la bibliothèque.</em>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div id="liste-livres">
+            {% for livre in livres %}
+            <div class="book-card">
+                <div class="book-info">
+                    <b>{{ livre.titre }}</b> par {{ livre.auteur }}<br>
+                    <span class="stock">Disponible : {{ livre.stock_disponible }} / {{ livre.stock_total }}</span>
+                </div>
+                
+                <div class="actions">
+                    {% if livre.stock_disponible > 0 %}
+                        <form action="/emprunter/{{ livre.id }}" method="POST">
+                            <button class="btn btn-emprunt">Emprunter</button>
+                        </form>
+                    {% else %}
+                        <button class="btn" disabled>Épuisé</button>
+                    {% endif %}
+
+                    {% if session['role'] == 'admin' %}
+                        <a href="/supprimer_livre/{{ livre.id }}" class="btn btn-admin">Supprimer</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
-
 </body>
 </html>
