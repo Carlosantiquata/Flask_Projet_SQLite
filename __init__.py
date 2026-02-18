@@ -11,12 +11,8 @@ def get_db_connection():
     return conn
 
 # =========================================================
-#             GESTION AUTHENTIFICATION (Session)
+#             GESTION AUTHENTIFICATION
 # =========================================================
-
-# Vérifie si l'utilisateur est admin
-def is_admin():
-    return session.get('role') == 'admin'
 
 # Vérifie si l'utilisateur est connecté
 def is_logged_in():
@@ -37,8 +33,8 @@ def authentification():
             session['user_id'] = user['id']
             session['username'] = user['username']
             session['role'] = user['role']
-            # On redirige vers la page d'accueil ou les tâches
-            return redirect(url_for('page_taches'))
+            # On redirige vers la page des tâches après connexion
+            return redirect(url_for('taches'))
         else:
             return render_template('formulaire_authentification.html', error=True)
 
@@ -51,7 +47,7 @@ def logout():
 
 
 # =========================================================
-#                    PAGES CLIENTS (Ton ancien code)
+#                    PAGES CLIENTS
 # =========================================================
 
 @app.route('/')
@@ -67,7 +63,6 @@ def ReadBDD():
 
 @app.route('/fiche_nom/', methods=['GET'])
 def fiche_nom():
-    # Protection simple : faut être connecté
     if not is_logged_in():
         return redirect(url_for('authentification'))
 
@@ -100,22 +95,26 @@ def enregistrer_client():
 
 
 # =========================================================
-#           GESTIONNAIRE DE TÂCHES (Le Nouveau !)
+#           GESTIONNAIRE DE TÂCHES (CORRIGÉ)
 # =========================================================
 
+# J'ai renommé cette fonction "taches" pour qu'elle matche ton HTML !
 @app.route('/taches')
-def page_taches():
+def taches():
     if not is_logged_in():
         return redirect(url_for('authentification'))
 
     conn = get_db_connection()
-    taches = conn.execute("""
+    # On récupère les tâches de l'utilisateur
+    mes_taches = conn.execute("""
         SELECT * FROM taches 
         WHERE utilisateur_id=? 
         ORDER BY terminee ASC, date_echeance ASC
     """, (session['user_id'],)).fetchall()
     conn.close()
-    return render_template('taches.html', taches=taches)
+    
+    # J'ai changé 'taches.html' pour être sûr qu'il charge le bon fichier
+    return render_template('taches.html', taches=mes_taches)
 
 @app.route('/taches/ajouter', methods=['POST'])
 def ajouter_tache():
@@ -132,7 +131,7 @@ def ajouter_tache():
                      (session['user_id'], titre, description, date_echeance))
         conn.commit()
         conn.close()
-    return redirect(url_for('page_taches'))
+    return redirect(url_for('taches'))
 
 @app.route('/taches/terminer/<int:tache_id>', methods=['POST'])
 def toggle_terminee(tache_id):
@@ -147,7 +146,7 @@ def toggle_terminee(tache_id):
         conn.execute("UPDATE taches SET terminee=? WHERE id=?", (new_val, tache_id))
         conn.commit()
     conn.close()
-    return redirect(url_for('page_taches'))
+    return redirect(url_for('taches'))
 
 @app.route('/taches/supprimer/<int:tache_id>', methods=['POST'])
 def supprimer_tache(tache_id):
@@ -158,11 +157,11 @@ def supprimer_tache(tache_id):
     conn.execute("DELETE FROM taches WHERE id=? AND utilisateur_id=?", (tache_id, session['user_id']))
     conn.commit()
     conn.close()
-    return redirect(url_for('page_taches'))
+    return redirect(url_for('taches'))
 
 
 # =========================================================
-#             API BIBLIOTHEQUE (Réintégrée)
+#             API BIBLIOTHEQUE
 # =========================================================
 
 @app.route('/api/livres', methods=['GET'])
@@ -178,7 +177,6 @@ def api_livres():
     conn.close()
     return jsonify([dict(r) for r in data])
 
-# API : Emprunter un livre (Utilise maintenant la SESSION)
 @app.route('/api/user/emprunter', methods=['POST'])
 def api_user_emprunter():
     if not is_logged_in():
@@ -192,32 +190,14 @@ def api_user_emprunter():
     
     if not livre or livre['stock_disponible'] <= 0:
         conn.close()
-        return jsonify({"error": "Stock épuisé ou livre introuvable"}), 400
+        return jsonify({"error": "Stock épuisé"}), 400
 
-    # Mise à jour stock + Création emprunt
     conn.execute("UPDATE livres SET stock_disponible = stock_disponible - 1 WHERE id=?", (livre_id,))
     conn.execute("INSERT INTO emprunts (utilisateur_id, livre_id, statut) VALUES (?, ?, 'EN_COURS')",
                  (session['user_id'], livre_id))
     conn.commit()
     conn.close()
     return jsonify({"message": "Livre emprunté !"})
-
-# API : Ajouter Livre (Admin seulement)
-@app.route('/api/admin/ajouter_livre', methods=['POST'])
-def api_admin_ajouter_livre():
-    if not is_admin():
-        return jsonify({"error": "Accès interdit (Admin requis)"}), 403
-
-    data = request.get_json(silent=True) or {}
-    conn = get_db_connection()
-    try:
-        conn.execute("INSERT INTO livres (titre, auteur, stock_total, stock_disponible) VALUES (?, ?, ?, ?)",
-                     (data.get('titre'), data.get('auteur'), data.get('stock'), data.get('stock')))
-        conn.commit()
-        conn.close()
-        return jsonify({"message": "Livre ajouté"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 # =========================================================
 #                        LANCEMENT
