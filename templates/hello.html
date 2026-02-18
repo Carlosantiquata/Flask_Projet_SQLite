@@ -1,65 +1,48 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenue</title>
+    <title>Accueil - MyTasks</title>
     <style>
-        /* On reprend le thème Lavande pour la cohérence */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f3f0ff; /* Fond lavande pâle */
-            color: #4a4a4a;
-            height: 100vh; /* Prend toute la hauteur de l'écran */
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        h1 {
-            color: #673ab7; /* Violet foncé */
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-
-        p {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 40px;
-            max-width: 600px;
-            line-height: 1.6;
-        }
-
-        /* Le bouton d'action principal */
-        .btn-start {
-            background-color: #7e57c2;
-            color: white;
-            padding: 15px 40px;
-            text-decoration: none;
-            border-radius: 50px; /* Bouton bien rond */
-            font-size: 1.2em;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(126, 87, 194, 0.4); /* Ombre violette */
-            transition: transform 0.2s, background-color 0.3s;
-        }
-
-        .btn-start:hover {
-            background-color: #5e35b1;
-            transform: translateY(-5px); /* Le bouton remonte un peu au survol */
-        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f3f0ff; display: flex; flex-direction: column; align-items: center; padding: 40px; margin: 0; }
+        h1 { color: #673ab7; margin-bottom: 40px; }
+        .dashboard { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; max-width: 900px; width: 100%; }
+        .card { background: white; flex: 1; min-width: 300px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(103, 58, 183, 0.1); text-align: center; transition: transform 0.3s; }
+        .card:hover { transform: translateY(-5px); }
+        h2 { color: #5e35b1; margin-top: 0; }
+        p { color: #777; margin-bottom: 25px; }
+        .btn { display: inline-block; background-color: #7e57c2; color: white; padding: 12px 25px; border-radius: 50px; text-decoration: none; font-weight: bold; }
+        .btn:hover { background-color: #5e35b1; }
+        .logout { margin-top: 40px; color: #9575cd; text-decoration: none; }
     </style>
 </head>
 <body>
 
-    <h1>Bienvenue !</h1>
-   
+    <h1>Bienvenue {{ session['username'] if session.get('user_id') else '' }} ! 👋</h1>
 
-    <a href="{{ url_for('taches') }}" class="btn-start">
-        🚀 Voir mes Tâches
-    </a>
+    <div class="dashboard">
+        <div class="card">
+            <h2>📝 Mes Tâches</h2>
+            {% if taches %}
+                <p>Vous avez {{ taches|length }} tâche(s) en attente.</p>
+            {% else %}
+                <p>Gérez votre organisation quotidienne.</p>
+            {% endif %}
+            <a href="{{ url_for('taches') }}" class="btn">Gérer mes tâches</a>
+        </div>
+
+        <div class="card">
+            <h2>📚 Bibliothèque</h2>
+            <p>Empruntez des livres et consultez les stocks.</p>
+            <a href="{{ url_for('bibliotheque') }}" class="btn">Voir les livres</a>
+        </div>
+    </div>
+
+    {% if session.get('user_id') %}
+        <a href="{{ url_for('logout') }}" class="logout">Se déconnecter</a>
+    {% else %}
+        <a href="{{ url_for('authentification') }}" class="logout">Se connecter</a>
+    {% endif %}
 
 </body>
 </html>
