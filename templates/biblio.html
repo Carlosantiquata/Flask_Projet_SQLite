@@ -4,58 +4,24 @@
     <meta charset="UTF-8">
     <title>Bibliothèque - MyTasks</title>
     <style>
-        /* On garde ton thème Lavande */
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f3f0ff; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f3f0ff; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         h1 { color: #673ab7; text-align: center; }
-        
-        .search-box { margin-bottom: 30px; display: flex; gap: 10px; }
-        input { flex: 1; padding: 12px; border: 2px solid #ede7f6; border-radius: 8px; }
-        
-        .book-card { border-bottom: 1px solid #eee; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
-        .book-info b { color: #5e35b1; font-size: 1.1em; }
-        .stock { font-size: 0.9em; color: #666; }
-        
-        .btn { padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; }
-        .btn-emprunt { background-color: #7e57c2; color: white; }
-        .btn-emprunt:disabled { background-color: #ccc; cursor: not-allowed; }
-        .btn-admin { background-color: #ffccbc; color: #d84315; font-size: 0.8em; }
+        .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        input { flex: 1; padding: 10px; border: 2px solid #eee; border-radius: 8px; }
+        .book-card { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f3f0ff; }
+        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; }
+        .btn-emprunt { background-color: #7e57c2; }
+        .btn-delete { background-color: #e57373; margin-left: 10px; }
+        .badge { background: #ede7f6; color: #673ab7; padding: 4px 8px; border-radius: 5px; font-size: 0.8em; }
+        a { text-decoration: none; color: #7e57c2; }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="/" style="text-decoration: none; color: #9575cd;">⬅ Retour</a>
+        <a href="/">⬅ Retour Tableau de bord</a>
         <h1>📚 La Bibliothèque</h1>
 
-        <form class="search-box" action="/api/livres" method="GET">
-            <input type="text" name="q" placeholder="Rechercher un titre, un auteur...">
-            <button type="submit" class="btn btn-emprunt">Rechercher</button>
-        </form>
-
-        <div id="liste-livres">
-            {% for livre in livres %}
-            <div class="book-card">
-                <div class="book-info">
-                    <b>{{ livre.titre }}</b> par {{ livre.auteur }}<br>
-                    <span class="stock">Disponible : {{ livre.stock_disponible }} / {{ livre.stock_total }}</span>
-                </div>
-                
-                <div class="actions">
-                    {% if livre.stock_disponible > 0 %}
-                        <form action="/emprunter/{{ livre.id }}" method="POST">
-                            <button class="btn btn-emprunt">Emprunter</button>
-                        </form>
-                    {% else %}
-                        <button class="btn" disabled>Épuisé</button>
-                    {% endif %}
-
-                    {% if session['role'] == 'admin' %}
-                        <a href="/supprimer_livre/{{ livre.id }}" class="btn btn-admin">Supprimer</a>
-                    {% endif %}
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</body>
-</html>
+        <form class="search-bar" action="/bibliotheque" method="GET">
+            <input type="text" name="q" placeholder="Rechercher un livre...">
+            <button class="btn btn-emprunt">
