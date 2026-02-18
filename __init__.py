@@ -33,8 +33,8 @@ def authentification():
             session['user_id'] = user['id']
             session['username'] = user['username']
             session['role'] = user['role']
-            # On redirige vers la page des tâches après connexion
-            return redirect(url_for('taches'))
+            # On redirige vers l'accueil (Dashboard)
+            return redirect(url_for('hello_world'))
         else:
             return render_template('formulaire_authentification.html', error=True)
 
@@ -47,12 +47,22 @@ def logout():
 
 
 # =========================================================
-#                    PAGES CLIENTS
+#                    PAGES CLIENTS (Consultation)
 # =========================================================
 
 @app.route('/')
 def hello_world():
-    return render_template('hello.html')
+    # On envoie des infos à la page d'accueil pour le tableau de bord
+    conn = get_db_connection()
+    livres = conn.execute("SELECT * FROM livres LIMIT 3").fetchall()
+    
+    taches = []
+    if is_logged_in():
+        taches = conn.execute("SELECT * FROM taches WHERE utilisateur_id=? AND terminee=0 LIMIT 3", 
+                             (session['user_id'],)).fetchall()
+    
+    conn.close()
+    return render_template('hello.html', livres=livres, taches=taches)
 
 @app.route('/consultation/')
 def ReadBDD():
@@ -95,10 +105,9 @@ def enregistrer_client():
 
 
 # =========================================================
-#           GESTIONNAIRE DE TÂCHES (CORRIGÉ)
+#           GESTIONNAIRE DE TÂCHES
 # =========================================================
 
-# J'ai renommé cette fonction "taches" pour qu'elle matche ton HTML !
 @app.route('/taches')
 def taches():
     if not is_logged_in():
@@ -113,7 +122,6 @@ def taches():
     """, (session['user_id'],)).fetchall()
     conn.close()
     
-    # J'ai changé 'taches.html' pour être sûr qu'il charge le bon fichier
     return render_template('taches.html', taches=mes_taches)
 
 @app.route('/taches/ajouter', methods=['POST'])
@@ -161,43 +169,62 @@ def supprimer_tache(tache_id):
 
 
 # =========================================================
-#             API BIBLIOTHEQUE
+#             BIBLIOTHEQUE (INTERFACE VISUELLE)
 # =========================================================
 
-@app.route('/api/livres', methods=['GET'])
-def api_livres():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    q = request.args.get('q', '').strip()
-    if q:
-        cur.execute("SELECT * FROM livres WHERE titre LIKE ? OR auteur LIKE ?", (f"%{q}%", f"%{q}%"))
-    else:
-        cur.execute("SELECT * FROM livres ORDER BY titre")
-    data = cur.fetchall()
-    conn.close()
-    return jsonify([dict(r) for r in data])
-
-@app.route('/api/user/emprunter', methods=['POST'])
-def api_user_emprunter():
+# 1. Page principale de la bibliothèque (Recherche + Liste)
+@app.route('/bibliotheque')
+def bibliotheque():
+    # Protection : il faut être connecté
     if not is_logged_in():
-        return jsonify({"error": "Non connecté"}), 401
-
-    data = request.get_json(silent=True) or {}
-    livre_id = data.get("livre_id")
+        return redirect(url_for('authentification'))
     
+    conn = get_db_connection()
+    q = request.args.get('q', '').strip()
+    
+    if q:
+        # Recherche par titre ou auteur
+        livres = conn.execute("SELECT * FROM livres WHERE titre LIKE ? OR auteur LIKE ?", 
+                             (f"%{q}%", f"%{q}%")).fetchall()
+    else:
+        # Sinon on affiche tout
+        livres = conn.execute("SELECT * FROM livres").fetchall()
+    
+    conn.close()
+    return render_template('biblio.html', livres=livres)
+
+# 2. Action d'emprunter un livre (Via bouton HTML)
+@app.route('/emprunter/<int:livre_id>', methods=['POST'])
+def emprunter_livre(livre_id):
+    if not is_logged_in():
+        return redirect(url_for('authentification'))
+        
     conn = get_db_connection()
     livre = conn.execute("SELECT stock_disponible FROM livres WHERE id=?", (livre_id,)).fetchone()
     
-    if not livre or livre['stock_disponible'] <= 0:
-        conn.close()
-        return jsonify({"error": "Stock épuisé"}), 400
+    # Vérification du stock
+    if livre and livre['stock_disponible'] > 0:
+        # Mise à jour du stock (-1)
+        conn.execute("UPDATE livres SET stock_disponible = stock_disponible - 1 WHERE id=?", (livre_id,))
+        # Création de l'emprunt
+        conn.execute("INSERT INTO emprunts (utilisateur_id, livre_id, statut) VALUES (?, ?, 'EN_COURS')",
+                     (session['user_id'], livre_id))
+        conn.commit()
+    
+    conn.close()
+    return redirect(url_for('bibliotheque'))
 
-    conn.execute("UPDATE livres SET stock_disponible = stock_disponible - 1 WHERE id=?", (livre_id,))
-    conn.execute("INSERT INTO emprunts (utilisateur_id, livre_id, statut) VALUES (?, ?, 'EN_COURS')",
-                 (session['user_id'], livre_id))
+# 3. Action de supprimer un livre (ADMIN SEULEMENT)
+@app.route('/admin/supprimer_livre/<int:livre_id>', methods=['POST'])
+def supprimer_livre_admin(livre_id):
+    if not is_logged_in() or session.get('role') != 'admin':
+        return "Accès refusé. Réservé aux administrateurs.", 403
+        
+    conn = get_db_connection()
+    conn.execute("DELETE FROM livres WHERE id=?", (livre_id,))
     conn.commit()
     conn.close()
-    return jsonify({"message": "Livre emprunté !"})
+    return redirect(url_for('bibliotheque'))
 
 # =========================================================
 #                        LANCEMENT
